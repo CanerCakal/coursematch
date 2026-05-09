@@ -12,6 +12,13 @@ class UniversityCreate(UniversityBase):
     pass
 
 
+class UniversityUpdate(BaseModel):
+    name: str | None = None
+    city: str | None = None
+    country: str | None = None
+    website: str | None = None
+
+
 class UniversityRead(UniversityBase):
     id: int
 

@@ -11,6 +11,12 @@ class DepartmentCreate(DepartmentBase):
     pass
 
 
+class DepartmentUpdate(BaseModel):
+    university_id: int | None = None
+    name: str | None = None
+    faculty: str | None = None
+
+
 class DepartmentRead(DepartmentBase):
     id: int
 
