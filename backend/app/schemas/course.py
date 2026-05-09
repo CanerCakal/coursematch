@@ -34,5 +34,19 @@ class CourseUpdate(BaseModel):
 class CourseRead(CourseBase):
     id: int
 
-    class Config:
+class Config:
         from_attributes = True
+
+class CourseCompareRequest(BaseModel):
+    source_course_id: int
+    target_course_id: int
+
+
+class CourseCompareResponse(BaseModel):
+    source_course_id: int
+    target_course_id: int
+    similarity_score: float
+    ects_match: bool
+    credit_match: bool
+    matched_keywords: list[str]
+    summary: str

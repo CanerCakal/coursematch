@@ -4,7 +4,14 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.models.course import Course
 from app.models.department import Department
-from app.schemas.course import CourseCreate, CourseRead, CourseUpdate
+from app.schemas.course import (
+    CourseCompareRequest,
+    CourseCompareResponse,
+    CourseCreate,
+    CourseRead,
+    CourseUpdate,
+)
+from app.services.course_similarity import calculate_course_similarity
 
 router = APIRouter(prefix="/courses", tags=["Courses"])
 
@@ -38,6 +45,44 @@ def create_course(
 @router.get("/", response_model=list[CourseRead])
 def list_courses(db: Session = Depends(get_db)):
     return db.query(Course).order_by(Course.name).all()
+
+
+@router.post("/compare", response_model=CourseCompareResponse)
+def compare_courses(
+    compare_data: CourseCompareRequest,
+    db: Session = Depends(get_db),
+):
+    if compare_data.source_course_id == compare_data.target_course_id:
+        raise HTTPException(
+            status_code=400,
+            detail="Bir ders kendisiyle karşılaştırılamaz.",
+        )
+
+    source_course = (
+        db.query(Course)
+        .filter(Course.id == compare_data.source_course_id)
+        .first()
+    )
+
+    if not source_course:
+        raise HTTPException(
+            status_code=404,
+            detail="Kaynak ders bulunamadı.",
+        )
+
+    target_course = (
+        db.query(Course)
+        .filter(Course.id == compare_data.target_course_id)
+        .first()
+    )
+
+    if not target_course:
+        raise HTTPException(
+            status_code=404,
+            detail="Hedef ders bulunamadı.",
+        )
+
+    return calculate_course_similarity(source_course, target_course)
 
 
 @router.get("/{course_id}", response_model=CourseRead)
