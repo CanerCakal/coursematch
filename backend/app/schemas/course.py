@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from datetime import datetime
 
 
 class CourseBase(BaseModel):
@@ -36,3 +37,37 @@ class CourseRead(CourseBase):
 
     class Config:
         from_attributes = True
+
+
+class CourseCompareRequest(BaseModel):
+    source_course_id: int
+    target_course_id: int
+
+
+class CourseCompareResponse(BaseModel):
+    source_course_id: int
+    source_course_name: str
+    target_course_id: int
+    target_course_name: str
+    similarity_score: float
+    keyword_similarity_score: float
+    ects_match: bool
+    credit_match: bool
+    matched_keywords: list[str]
+    recommendation: str
+    summary: str
+
+class CourseComparisonHistoryItem(BaseModel):
+    id: int
+    source_course_id: int
+    source_course_name: str
+    target_course_id: int
+    target_course_name: str
+    similarity_score: float
+    keyword_similarity_score: float
+    ects_match: bool
+    credit_match: bool
+    matched_keywords: list[str]
+    recommendation: str
+    summary: str
+    created_at: datetime
