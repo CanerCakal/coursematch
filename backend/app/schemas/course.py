@@ -34,8 +34,9 @@ class CourseUpdate(BaseModel):
 class CourseRead(CourseBase):
     id: int
 
-class Config:
+    class Config:
         from_attributes = True
+
 
 class CourseCompareRequest(BaseModel):
     source_course_id: int

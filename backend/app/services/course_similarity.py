@@ -29,6 +29,57 @@ STOP_WORDS = {
     "are",
 }
 
+KEYWORD_ALIASES = {
+    "programlama": "programming",
+    "programlamaya": "programming",
+    "programlamayi": "programming",
+    "programming": "programming",
+
+    "algoritma": "algorithm",
+    "algoritmalar": "algorithm",
+    "algorithms": "algorithm",
+    "algorithm": "algorithm",
+
+    "veri": "data",
+    "data": "data",
+
+    "yapilari": "structures",
+    "structures": "structures",
+    "structure": "structures",
+
+    "fonksiyon": "function",
+    "fonksiyonlar": "function",
+    "functions": "function",
+    "function": "function",
+
+    "dongu": "loop",
+    "donguler": "loop",
+    "loops": "loop",
+    "loop": "loop",
+
+    "kosul": "condition",
+    "kosullar": "condition",
+    "conditionals": "condition",
+    "condition": "condition",
+
+    "degisken": "variable",
+    "degiskenler": "variable",
+    "variables": "variable",
+    "variable": "variable",
+
+    "liste": "list",
+    "listeler": "list",
+    "lists": "list",
+    "list": "list",
+
+    "dosya": "file",
+    "dosyalar": "file",
+    "files": "file",
+    "file": "file",
+
+    "python": "python",
+}
+
 
 def normalize_text(text: str | None) -> str:
     if not text:
@@ -50,10 +101,15 @@ def extract_keywords(text: str | None) -> set[str]:
 
     words = re.findall(r"[a-zA-Z0-9]+", normalized_text)
 
-    return {
+    keywords = {
         word
         for word in words
         if len(word) >= 4 and word not in STOP_WORDS
+    }
+
+    return {
+        KEYWORD_ALIASES.get(keyword, keyword)
+        for keyword in keywords
     }
 
 
