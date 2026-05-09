@@ -155,6 +155,8 @@ def calculate_course_similarity(
         target_course,
     )
 
+    keyword_similarity = round(keyword_similarity, 2)
+
     ects_match = (
         source_course.ects is not None
         and target_course.ects is not None
@@ -178,21 +180,26 @@ def calculate_course_similarity(
     score = min(score, 100)
     score = round(score, 2)
 
-    if score >= 80:
-        summary = "Dersler yüksek seviyede benzer görünüyor."
-    elif score >= 50:
-        summary = "Dersler orta seviyede benzer görünüyor."
-    elif score >= 25:
-        summary = "Dersler düşük-orta seviyede benzer görünüyor."
+    if score >= 75:
+        recommendation = "equivalent"
+        summary = "Dersler yüksek seviyede benzer görünüyor. Eşdeğerlik için güçlü aday."
+    elif score >= 45:
+        recommendation = "review_required"
+        summary = "Dersler kısmen benzer görünüyor. Eşdeğerlik için akademik inceleme gerekli."
     else:
-        summary = "Dersler düşük seviyede benzer görünüyor."
+        recommendation = "not_equivalent"
+        summary = "Dersler düşük seviyede benzer görünüyor. Eşdeğer kabul edilmesi zayıf ihtimal."
 
     return {
         "source_course_id": source_course.id,
+        "source_course_name": source_course.name,
         "target_course_id": target_course.id,
+        "target_course_name": target_course.name,
         "similarity_score": score,
+        "keyword_similarity_score": keyword_similarity,
         "ects_match": ects_match,
         "credit_match": credit_match,
         "matched_keywords": matched_keywords[:20],
+        "recommendation": recommendation,
         "summary": summary,
     }
