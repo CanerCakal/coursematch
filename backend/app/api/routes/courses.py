@@ -1,8 +1,8 @@
 import json
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
-
 from app.db.database import get_db
 from app.models.course import Course
 from app.models.course_comparison import CourseComparison
@@ -18,6 +18,25 @@ from app.schemas.course import (
 from app.services.course_similarity import calculate_course_similarity
 
 router = APIRouter(prefix="/courses", tags=["Courses"])
+
+def build_comparison_history_item(
+    comparison: CourseComparison,
+) -> CourseComparisonHistoryItem:
+    return CourseComparisonHistoryItem(
+        id=comparison.id,
+        source_course_id=comparison.source_course_id,
+        source_course_name=comparison.source_course.name,
+        target_course_id=comparison.target_course_id,
+        target_course_name=comparison.target_course.name,
+        similarity_score=comparison.similarity_score,
+        keyword_similarity_score=comparison.keyword_similarity_score,
+        ects_match=comparison.ects_match,
+        credit_match=comparison.credit_match,
+        matched_keywords=json.loads(comparison.matched_keywords or "[]"),
+        recommendation=comparison.recommendation,
+        summary=comparison.summary,
+        created_at=comparison.created_at,
+    )
 
 
 @router.post("/", response_model=CourseRead, status_code=status.HTTP_201_CREATED)
@@ -121,28 +140,11 @@ def list_course_comparisons(
     )
 
     return [
-        CourseComparisonHistoryItem(
-            id=comparison.id,
-            source_course_id=comparison.source_course_id,
-            source_course_name=comparison.source_course.name,
-            target_course_id=comparison.target_course_id,
-            target_course_name=comparison.target_course.name,
-            similarity_score=comparison.similarity_score,
-            keyword_similarity_score=comparison.keyword_similarity_score,
-            ects_match=comparison.ects_match,
-            credit_match=comparison.credit_match,
-            matched_keywords=json.loads(comparison.matched_keywords or "[]"),
-            recommendation=comparison.recommendation,
-            summary=comparison.summary,
-            created_at=comparison.created_at,
-        )
+        build_comparison_history_item(comparison)
         for comparison in comparisons
     ]
 
-@router.delete(
-    "/comparisons/{comparison_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
-)
+@router.delete("/comparisons/{comparison_id}",status_code=status.HTTP_204_NO_CONTENT,)
 def delete_course_comparison(
     comparison_id: int,
     db: Session = Depends(get_db),
@@ -163,6 +165,42 @@ def delete_course_comparison(
     db.commit()
 
     return None
+
+@router.get("/{course_id}/comparisons",response_model=list[CourseComparisonHistoryItem],)
+def list_comparisons_for_course(
+    course_id: int,
+    limit: int = 20,
+    db: Session = Depends(get_db),
+):
+    course = (
+        db.query(Course)
+        .filter(Course.id == course_id)
+        .first()
+    )
+
+    if not course:
+        raise HTTPException(
+            status_code=404,
+            detail="Ders bulunamadı.",
+        )
+
+    comparisons = (
+        db.query(CourseComparison)
+        .filter(
+            or_(
+                CourseComparison.source_course_id == course_id,
+                CourseComparison.target_course_id == course_id,
+            )
+        )
+        .order_by(CourseComparison.created_at.desc())
+        .limit(limit)
+        .all()
+    )
+
+    return [
+        build_comparison_history_item(comparison)
+        for comparison in comparisons
+    ]
 
 @router.get("/{course_id}", response_model=CourseRead)
 def get_course(
