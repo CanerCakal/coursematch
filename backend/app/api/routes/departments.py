@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
@@ -36,8 +37,34 @@ def create_department(
 
 
 @router.get("/", response_model=list[DepartmentRead])
-def list_departments(db: Session = Depends(get_db)):
-    return db.query(Department).order_by(Department.name).all()
+def list_departments(
+    university_id: int | None = None,
+    search: str | None = None,
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=100),
+    db: Session = Depends(get_db),
+):
+    query = db.query(Department)
+
+    if university_id is not None:
+        query = query.filter(Department.university_id == university_id)
+
+    if search:
+        search_term = f"%{search.strip()}%"
+        query = query.filter(
+            or_(
+                Department.name.ilike(search_term),
+                Department.faculty.ilike(search_term),
+            )
+        )
+
+    return (
+        query
+        .order_by(Department.name)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 @router.get("/{department_id}", response_model=DepartmentRead)
