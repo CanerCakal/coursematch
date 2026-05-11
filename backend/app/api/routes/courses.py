@@ -67,8 +67,47 @@ def create_course(
 
 
 @router.get("/", response_model=list[CourseRead])
-def list_courses(db: Session = Depends(get_db)):
-    return db.query(Course).order_by(Course.name).all()
+def list_courses(
+    department_id: int | None = Query(
+        None,
+        description="Belirli bir bölüme ait dersleri filtreler",
+    ),
+    search: str | None = Query(
+        None,
+        description="Ders adı veya ders kodu içinde arama yapar",
+    ),
+    skip: int = Query(
+        0,
+        ge=0,
+        description="Kaç kayıt atlanacağı",
+    ),
+    limit: int = Query(
+        20,
+        ge=1,
+        le=100,
+        description="Dönecek maksimum kayıt sayısı",
+    ),
+    db: Session = Depends(get_db),
+):
+    query = db.query(Course)
+
+    if department_id is not None:
+        query = query.filter(Course.department_id == department_id)
+
+    if search:
+        search_pattern = f"%{search}%"
+        query = query.filter(
+            (Course.name.ilike(search_pattern))
+            | (Course.code.ilike(search_pattern))
+        )
+
+    return (
+        query
+        .order_by(Course.name)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 @router.post("/compare", response_model=CourseCompareResponse)
