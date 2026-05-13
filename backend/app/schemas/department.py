@@ -22,3 +22,10 @@ class DepartmentRead(DepartmentBase):
 
     class Config:
         from_attributes = True
+
+
+class DepartmentListResponse(BaseModel):
+    total: int
+    skip: int
+    limit: int
+    items: list[DepartmentRead]
