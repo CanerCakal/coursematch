@@ -56,3 +56,15 @@ export type CourseRecommendationResponse = {
   limit: number;
   items: CourseRecommendationItem[];
 };
+
+export type CourseComparisonHistoryItem = CourseRecommendationItem & {
+  id: number;
+  created_at: string;
+};
+
+export type CourseComparisonHistoryResponse = {
+  total: number;
+  skip: number;
+  limit: number;
+  items: CourseComparisonHistoryItem[];
+};

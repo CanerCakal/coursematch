@@ -215,6 +215,25 @@ button:disabled {
   color: #657087;
 }
 
+.coursePreview p {
+  margin: 8px 0 0;
+  color: #68758a;
+  line-height: 1.5;
+}
+
+.selectionHint {
+  margin-top: 18px;
+  padding: 14px;
+  border-radius: 16px;
+  color: #445168;
+  background: #f8faff;
+}
+
+.selectionHint p {
+  margin: 6px 0 0;
+  line-height: 1.5;
+}
+
 .results {
   padding: 24px;
 }
@@ -247,8 +266,25 @@ button:disabled {
 .recommendationCard {
   padding: 18px;
   border: 1px solid #e0e7f4;
+  border-left-width: 6px;
   border-radius: 20px;
   background: #ffffff;
+}
+
+.recommendationCard.equivalent {
+  border-left-color: #16a34a;
+}
+
+.recommendationCard.reviewRequired {
+  border-left-color: #f59e0b;
+}
+
+.recommendationCard.notEquivalent {
+  border-left-color: #dc2626;
+}
+
+.recommendationCard.unknown {
+  border-left-color: #64748b;
 }
 
 .recommendationTop {
@@ -258,8 +294,67 @@ button:disabled {
 }
 
 .recommendationTop p {
+  margin-bottom: 8px;
   color: #68758a;
   line-height: 1.6;
+}
+
+.recommendationTop small {
+  display: block;
+  color: #7b879a;
+  line-height: 1.5;
+}
+
+.recommendationTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.recommendationTitleRow h3 {
+  margin: 0;
+}
+
+.rankBadge {
+  display: inline-grid;
+  min-width: 38px;
+  height: 30px;
+  place-items: center;
+  border-radius: 999px;
+  color: #ffffff;
+  background: #172033;
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+.decisionBadge {
+  display: inline-flex;
+  margin-bottom: 12px;
+  padding: 7px 11px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.decisionBadge.equivalent {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.decisionBadge.reviewRequired {
+  color: #92400e;
+  background: #fef3c7;
+}
+
+.decisionBadge.notEquivalent {
+  color: #991b1b;
+  background: #fee2e2;
+}
+
+.decisionBadge.unknown {
+  color: #334155;
+  background: #e2e8f0;
 }
 
 .score {
@@ -280,19 +375,48 @@ button:disabled {
   font-weight: 700;
 }
 
-.metaGrid {
+.scoreBreakdown {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
-  margin: 14px 0;
+  margin: 16px 0;
 }
 
-.metaGrid span {
-  padding: 10px;
-  border-radius: 12px;
+.scoreBreakdown div {
+  display: grid;
+  gap: 5px;
+  padding: 12px;
+  border-radius: 14px;
   color: #58657a;
   background: #f5f7fb;
   font-size: 0.88rem;
+}
+
+.scoreBreakdown strong {
+  color: #172033;
+}
+
+.scoreBreakdown strong.positive {
+  color: #15803d;
+}
+
+.scoreBreakdown strong.negative {
+  color: #b91c1c;
+}
+
+.scoreBar {
+  height: 10px;
+  margin-bottom: 14px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e8edf7;
+}
+
+.scoreBar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #4169e1, #15b86a);
 }
 
 .keywords {
@@ -310,18 +434,149 @@ button:disabled {
   font-weight: 700;
 }
 
+.noKeywordText {
+  margin-bottom: 0;
+  color: #7b879a;
+}
+
 @media (max-width: 860px) {
+
   .hero,
   .recommendationTop {
     flex-direction: column;
   }
 
   .grid,
-  .metaGrid {
+  .scoreBreakdown {
     grid-template-columns: 1fr;
   }
 
   .statusCard {
+    width: 100%;
+  }
+}
+
+.success {
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  border: 1px solid #bbf7d0;
+  border-radius: 14px;
+  color: #166534;
+  background: #f0fdf4;
+}
+
+.recommendationActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.saveButton {
+  width: auto;
+  min-height: 42px;
+  margin-top: 0;
+  padding: 0 16px;
+  background: #172033;
+}
+
+.saveButton:disabled {
+  background: #aeb7c8;
+}
+
+.historySection {
+  margin-top: 24px;
+  padding: 24px;
+  border: 1px solid #dfe6f3;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 24px 70px rgba(29, 44, 78, 0.08);
+}
+
+.refreshButton {
+  width: auto;
+  min-width: 140px;
+  min-height: 42px;
+  margin-top: 0;
+  padding: 0 16px;
+  background: #4169e1;
+}
+
+.historyList {
+  display: grid;
+  gap: 14px;
+}
+
+.historyItem {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px;
+  border: 1px solid #e0e7f4;
+  border-radius: 18px;
+  background: #ffffff;
+}
+
+.historyTitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.historyTitle span {
+  color: #8792a6;
+}
+
+.historyItem p {
+  margin-bottom: 10px;
+  color: #68758a;
+  line-height: 1.5;
+}
+
+.historyMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  color: #7b879a;
+  font-size: 0.86rem;
+}
+
+.decisionBadge.small {
+  margin-bottom: 0;
+  padding: 5px 9px;
+  font-size: 0.76rem;
+}
+
+.historyScore {
+  display: grid;
+  flex: 0 0 82px;
+  height: 82px;
+  place-items: center;
+  border-radius: 22px;
+  color: #ffffff;
+  background: #172033;
+  font-size: 1.4rem;
+  font-weight: 900;
+}
+
+.historyScore span {
+  margin-top: -18px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+@media (max-width: 860px) {
+
+  .historyItem,
+  .resultsHeader {
+    flex-direction: column;
+  }
+
+  .refreshButton,
+  .saveButton {
     width: 100%;
   }
 }

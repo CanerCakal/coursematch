@@ -1,5 +1,7 @@
 import type {
   Course,
+  CourseComparisonHistoryResponse,
+  CourseRecommendationItem,
   CourseRecommendationResponse,
   Department,
   ListResponse,
@@ -80,9 +82,7 @@ export function getCourses(params: {
   searchParams.set("skip", String(params.skip ?? 0));
   searchParams.set("limit", String(params.limit ?? 20));
 
-  return request<ListResponse<Course>>(
-    `/courses/?${searchParams.toString()}`
-  );
+  return request<ListResponse<Course>>(`/courses/?${searchParams.toString()}`);
 }
 
 export function getCourseRecommendations(params: {
@@ -98,4 +98,31 @@ export function getCourseRecommendations(params: {
       limit: params.limit ?? 5,
     }),
   });
+}
+
+export function compareCourses(params: {
+  sourceCourseId: number;
+  targetCourseId: number;
+}): Promise<CourseRecommendationItem> {
+  return request<CourseRecommendationItem>("/courses/compare", {
+    method: "POST",
+    body: JSON.stringify({
+      source_course_id: params.sourceCourseId,
+      target_course_id: params.targetCourseId,
+    }),
+  });
+}
+
+export function getComparisonHistory(params?: {
+  skip?: number;
+  limit?: number;
+}): Promise<CourseComparisonHistoryResponse> {
+  const searchParams = new URLSearchParams();
+
+  searchParams.set("skip", String(params?.skip ?? 0));
+  searchParams.set("limit", String(params?.limit ?? 5));
+
+  return request<CourseComparisonHistoryResponse>(
+    `/courses/comparisons?${searchParams.toString()}`
+  );
 }
