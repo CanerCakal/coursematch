@@ -88,10 +88,17 @@ class CourseRecommendationResponse(BaseModel):
 
 class CourseComparisonHistoryItem(BaseModel):
     id: int
+
     source_course_id: int
     source_course_name: str
+    source_department_name: str | None = None
+    source_university_name: str | None = None
+
     target_course_id: int
     target_course_name: str
+    target_department_name: str | None = None
+    target_university_name: str | None = None
+
     similarity_score: float
     keyword_similarity_score: float
     ects_match: bool

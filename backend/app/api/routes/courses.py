@@ -28,12 +28,33 @@ router = APIRouter(prefix="/courses", tags=["Courses"])
 def build_comparison_history_item(
     comparison: CourseComparison,
 ) -> CourseComparisonHistoryItem:
+    source_course = comparison.source_course
+    target_course = comparison.target_course
+
+    source_department = source_course.department if source_course else None
+    target_department = target_course.department if target_course else None
+
+    source_university = (
+        source_department.university
+        if source_department and source_department.university
+        else None
+    )
+    target_university = (
+        target_department.university
+        if target_department and target_department.university
+        else None
+    )
+
     return CourseComparisonHistoryItem(
         id=comparison.id,
         source_course_id=comparison.source_course_id,
-        source_course_name=comparison.source_course.name,
+        source_course_name=source_course.name,
+        source_department_name=source_department.name if source_department else None,
+        source_university_name=source_university.name if source_university else None,
         target_course_id=comparison.target_course_id,
-        target_course_name=comparison.target_course.name,
+        target_course_name=target_course.name,
+        target_department_name=target_department.name if target_department else None,
+        target_university_name=target_university.name if target_university else None,
         similarity_score=comparison.similarity_score,
         keyword_similarity_score=comparison.keyword_similarity_score,
         ects_match=comparison.ects_match,

@@ -91,6 +91,7 @@ function App() {
   const [totalCandidates, setTotalCandidates] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isRecommendationLoading, setIsRecommendationLoading] = useState(false);
+  const [isHistoryLoading, setIsHistoryLoading] = useState(false);
   const [savingTargetCourseId, setSavingTargetCourseId] = useState<number | null>(
     null
   );
@@ -123,12 +124,30 @@ function App() {
     );
   }
 
-  async function loadHistory() {
-    const data = await getComparisonHistory({
-      limit: 5,
-    });
+  async function loadHistory(options?: { showLoading?: boolean }) {
+    try {
+      if (options?.showLoading) {
+        setIsHistoryLoading(true);
+      }
 
-    setHistory(data.items);
+      setErrorMessage(null);
+
+      const data = await getComparisonHistory({
+        limit: 5,
+      });
+
+      setHistory(data.items);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Karşılaştırma geçmişi yüklenirken hata oluştu."
+      );
+    } finally {
+      if (options?.showLoading) {
+        setIsHistoryLoading(false);
+      }
+    }
   }
 
   useEffect(() => {
@@ -137,10 +156,8 @@ function App() {
         setIsLoading(true);
         setErrorMessage(null);
 
-        const [universityData] = await Promise.all([
-          getUniversities(),
-          loadHistory(),
-        ]);
+        const universityData = await getUniversities();
+        await loadHistory();
 
         setUniversities(universityData);
       } catch (error) {
@@ -628,7 +645,10 @@ function App() {
                     <button
                       className="saveButton"
                       type="button"
-                      disabled={saved || savingTargetCourseId === recommendation.target_course_id}
+                      disabled={
+                        saved ||
+                        savingTargetCourseId === recommendation.target_course_id
+                      }
                       onClick={() => handleSaveComparison(recommendation)}
                     >
                       {savingTargetCourseId === recommendation.target_course_id
@@ -652,8 +672,13 @@ function App() {
             <p>Kaydedilen son eşdeğerlik karşılaştırmaları.</p>
           </div>
 
-          <button className="refreshButton" type="button" onClick={loadHistory}>
-            Geçmişi yenile
+          <button
+            className="refreshButton"
+            type="button"
+            disabled={isHistoryLoading}
+            onClick={() => loadHistory({ showLoading: true })}
+          >
+            {isHistoryLoading ? "Yenileniyor..." : "Geçmişi yenile"}
           </button>
         </div>
 
@@ -671,10 +696,28 @@ function App() {
               return (
                 <article key={item.id} className="historyItem">
                   <div>
-                    <div className="historyTitle">
-                      <strong>{item.source_course_name}</strong>
-                      <span>↔</span>
-                      <strong>{item.target_course_name}</strong>
+                    <div className="historyComparison">
+                      <div className="historyCourseBlock">
+                        <span className="historySchool">
+                          {item.source_university_name ?? "Kaynak üniversite"}
+                          {item.source_department_name
+                            ? ` / ${item.source_department_name}`
+                            : ""}
+                        </span>
+                        <strong>{item.source_course_name}</strong>
+                      </div>
+
+                      <span className="historyArrow">↔</span>
+
+                      <div className="historyCourseBlock">
+                        <span className="historySchool">
+                          {item.target_university_name ?? "Hedef üniversite"}
+                          {item.target_department_name
+                            ? ` / ${item.target_department_name}`
+                            : ""}
+                        </span>
+                        <strong>{item.target_course_name}</strong>
+                      </div>
                     </div>
 
                     <p>{item.summary}</p>

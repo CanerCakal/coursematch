@@ -59,6 +59,10 @@ export type CourseRecommendationResponse = {
 
 export type CourseComparisonHistoryItem = CourseRecommendationItem & {
   id: number;
+  source_department_name: string | null;
+  source_university_name: string | null;
+  target_department_name: string | null;
+  target_university_name: string | null;
   created_at: string;
 };
 

@@ -580,3 +580,42 @@ button:disabled {
     width: 100%;
   }
 }
+
+.historyComparison {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.historyCourseBlock {
+  display: grid;
+  gap: 4px;
+}
+
+.historySchool {
+  color: #6d778a;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.historyArrow {
+  color: #8792a6;
+  font-weight: 900;
+}
+
+.refreshButton:disabled {
+  background: #aeb7c8;
+  cursor: not-allowed;
+}
+
+@media (max-width: 860px) {
+  .historyComparison {
+    grid-template-columns: 1fr;
+  }
+
+  .historyArrow {
+    text-align: left;
+  }
+}
