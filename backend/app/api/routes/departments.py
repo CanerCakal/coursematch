@@ -5,7 +5,12 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.models.department import Department
 from app.models.university import University
-from app.schemas.department import DepartmentCreate, DepartmentRead, DepartmentUpdate
+from app.schemas.department import (
+    DepartmentCreate,
+    DepartmentListResponse,
+    DepartmentRead,
+    DepartmentUpdate,
+)
 
 router = APIRouter(prefix="/departments", tags=["Departments"])
 
@@ -36,12 +41,27 @@ def create_department(
     return department
 
 
-@router.get("/", response_model=list[DepartmentRead])
+@router.get("/", response_model=DepartmentListResponse)
 def list_departments(
-    university_id: int | None = None,
-    search: str | None = None,
-    skip: int = Query(default=0, ge=0),
-    limit: int = Query(default=100, ge=1, le=100),
+    university_id: int | None = Query(
+        None,
+        description="Belirli bir üniversiteye ait bölümleri filtreler",
+    ),
+    search: str | None = Query(
+        None,
+        description="Bölüm adı veya fakülte adı içinde arama yapar",
+    ),
+    skip: int = Query(
+        0,
+        ge=0,
+        description="Kaç kayıt atlanacağı",
+    ),
+    limit: int = Query(
+        20,
+        ge=1,
+        le=100,
+        description="Dönecek maksimum kayıt sayısı",
+    ),
     db: Session = Depends(get_db),
 ):
     query = db.query(Department)
@@ -50,20 +70,29 @@ def list_departments(
         query = query.filter(Department.university_id == university_id)
 
     if search:
-        search_term = f"%{search.strip()}%"
+        search_pattern = f"%{search.strip()}%"
         query = query.filter(
             or_(
-                Department.name.ilike(search_term),
-                Department.faculty.ilike(search_term),
+                Department.name.ilike(search_pattern),
+                Department.faculty.ilike(search_pattern),
             )
         )
 
-    return (
+    total = query.count()
+
+    departments = (
         query
         .order_by(Department.name)
         .offset(skip)
         .limit(limit)
         .all()
+    )
+
+    return DepartmentListResponse(
+        total=total,
+        skip=skip,
+        limit=limit,
+        items=departments,
     )
 
 

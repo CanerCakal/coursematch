@@ -1,5 +1,6 @@
-from pydantic import BaseModel
 from datetime import datetime
+
+from pydantic import BaseModel, Field
 
 
 class CourseBase(BaseModel):
@@ -39,6 +40,13 @@ class CourseRead(CourseBase):
         from_attributes = True
 
 
+class CourseListResponse(BaseModel):
+    total: int
+    skip: int
+    limit: int
+    items: list[CourseRead]
+
+
 class CourseCompareRequest(BaseModel):
     source_course_id: int
     target_course_id: int
@@ -57,12 +65,40 @@ class CourseCompareResponse(BaseModel):
     recommendation: str
     summary: str
 
-class CourseComparisonHistoryItem(BaseModel):
-    id: int
+
+class CourseRecommendationRequest(BaseModel):
+    source_course_id: int
+    target_department_id: int
+    limit: int = Field(
+        default=5,
+        ge=1,
+        le=20,
+        description="Dönecek maksimum öneri sayısı",
+    )
+
+
+class CourseRecommendationResponse(BaseModel):
     source_course_id: int
     source_course_name: str
+    target_department_id: int
+    total_candidates: int
+    limit: int
+    items: list[CourseCompareResponse]
+
+
+class CourseComparisonHistoryItem(BaseModel):
+    id: int
+
+    source_course_id: int
+    source_course_name: str
+    source_department_name: str | None = None
+    source_university_name: str | None = None
+
     target_course_id: int
     target_course_name: str
+    target_department_name: str | None = None
+    target_university_name: str | None = None
+
     similarity_score: float
     keyword_similarity_score: float
     ects_match: bool
@@ -71,3 +107,10 @@ class CourseComparisonHistoryItem(BaseModel):
     recommendation: str
     summary: str
     created_at: datetime
+
+
+class CourseComparisonHistoryResponse(BaseModel):
+    total: int
+    skip: int
+    limit: int
+    items: list[CourseComparisonHistoryItem]
